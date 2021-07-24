@@ -55,12 +55,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
     name: 'default'
 
     resource fileShare 'shares@2021-04-01' = {
-      name: functionAppName
+      name: functionApp.name
     }
   }
 }
 
-resource functionApp 'Microsoft.Web/sites@2018-11-01' = {
+resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
   name: functionAppName
   location: resourceGroup().location
   kind: 'functionapp'
@@ -71,11 +71,11 @@ resource functionApp 'Microsoft.Web/sites@2018-11-01' = {
       appSettings: [
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=azurediysecure;EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=azurediysecure;EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
         }
         {
           name: 'WEBSITE_SKIP_CONTENTSHARE_VALIDATION'
@@ -101,7 +101,7 @@ resource functionApp 'Microsoft.Web/sites@2018-11-01' = {
       connectionStrings: [
         {
           name: 'AdventureWorks'
-          connectionString: 'Server=tcp:${sqlServer}.${environment().suffixes.sqlServerHostname},1433;Database=${databaseName};User ID=${sqlAdministratorLogin};Password=${sqlAdministratorLoginPassword}'
+          connectionString: 'Server=tcp:${sqlServer.name}.${environment().suffixes.sqlServerHostname},1433;Database=${databaseName};User ID=${sqlAdministratorLogin};Password=${sqlAdministratorLoginPassword}'
         }
       ]
     }
