@@ -5,6 +5,11 @@ param sqlAdministratorLogin string
 @secure()
 param sqlAdministratorLoginPassword string
 
+param authClientId string
+
+@secure()
+param authClientSecret string
+
 var functionAppName = 'secure-${uniqueString(resourceGroup().id)}'
 var appServicePlanName = 'secure-asp'
 var appInsightsName = 'secure-ai'
@@ -89,6 +94,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
       FUNCTIONS_WORKER_RUNTIME: 'dotnet'
       SCM_COMMAND_IDLE_TIMEOUT: '10000'
       WEBJOBS_IDLE_TIMEOUT: '10000'
+      MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: authClientSecret
     }
   }
 
@@ -108,6 +114,42 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
       repoUrl: sourceControlRepoUrl
       branch: sourceControlBranch
       isManualIntegration: true
+    }
+  }
+
+  resource authSettings 'config@2020-12-01' = {
+    name: 'authsettingsV2'
+    properties: {
+      globalValidation: {
+        properties: {
+          requireAuthentication: true
+          unauthenticatedClientAction: 'Return401'
+          redirectToProvider: 'azureactivedirectory'
+        }
+      }
+      identityProviders: {
+        properties: {
+          azureActiveDirectory: {
+            properties: {
+              enabled: true
+              registration: {
+                properties: {
+                  openIdIssuer: 'https://sts.windows.net/${subscription().tenantId}'
+                  clientId: authClientId
+                  clientSecretSettingName: 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
+                }
+              }
+              validation: {
+                properties: {
+                  allowedAudiences: [
+                    'api://${authClientId}'
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
