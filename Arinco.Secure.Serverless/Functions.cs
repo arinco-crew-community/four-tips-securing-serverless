@@ -23,7 +23,7 @@ namespace Arinco.Secure.Serverless
             log.LogInformation("TopFiveProducts function started processing a request.");
 
             var useManagedIdentity = Environment.GetEnvironmentVariable("UseManagedIdentity") == "true";
-            var connectionString = Environment.GetEnvironmentVariable($"ConnectionStrings:{(useManagedIdentity ? "AdventureWorksMi" : "AdventureWorks")}");
+            var connectionString = Environment.GetEnvironmentVariable($"SQLAZURECONNSTR_{(useManagedIdentity ? "AdventureWorksMi" : "AdventureWorks")}");
 
             await using var conn = new SqlConnection(connectionString);
 

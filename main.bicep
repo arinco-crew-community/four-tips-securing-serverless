@@ -7,6 +7,7 @@ param sqlAdministratorLoginPassword string
 
 var functionAppName = 'secure-${uniqueString(resourceGroup().id)}'
 var appServicePlanName = 'secure-asp'
+var appInsightsName = 'secure-ai'
 var sqlserverName = 'secure-${uniqueString(resourceGroup().id)}'
 var storageAccountName = 'secure${uniqueString(resourceGroup().id)}'
 var databaseName = 'secure-db'
@@ -66,7 +67,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
   kind: 'functionapp'
   properties: {
     serverFarmId: appServicePlan.id
-    
+
     siteConfig: {
       appSettings: [
         {
@@ -76,6 +77,10 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
+        }
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: '${applicationInsights.properties.InstrumentationKey}'
         }
         {
           name: 'WEBSITE_SKIP_CONTENTSHARE_VALIDATION'
@@ -94,13 +99,18 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
           value: 'dotnet'
         }
         {
-          name: 'Data'
-          value: 'dotnet'
+          name: 'SCM_COMMAND_IDLE_TIMEOUT'
+          value: '10000'
+        }
+        {
+          name: 'WEBJOBS_IDLE_TIMEOUT'
+          value: '10000'
         }
       ]
       connectionStrings: [
         {
           name: 'AdventureWorks'
+          type: 'SQLAzure'
           connectionString: 'Server=tcp:${sqlServer.name}.${environment().suffixes.sqlServerHostname},1433;Database=${databaseName};User ID=${sqlAdministratorLogin};Password=${sqlAdministratorLoginPassword}'
         }
       ]
@@ -113,5 +123,14 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
       branch: sourceControlBranch
       isManualIntegration: true
     }
+  }
+}
+
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: appInsightsName
+  kind: 'web'
+  location: resourceGroup().location
+  properties: {
+    Application_Type: 'web'
   }
 }
