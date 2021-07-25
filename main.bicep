@@ -1,16 +1,14 @@
 targetScope = 'resourceGroup'
 
-param sqlAdministratorLogin string
-
-@secure()
-param sqlAdministratorLoginPassword string
-
 var functionAppName = 'secure-${uniqueString(resourceGroup().id)}'
 var appServicePlanName = 'secure-asp'
 var appInsightsName = 'secure-ai'
 var sqlserverName = 'secure-${uniqueString(resourceGroup().id)}'
 var storageAccountName = 'secure${uniqueString(resourceGroup().id)}'
 var databaseName = 'secure-db'
+
+var sqlAdministratorLogin = 'adminuser'
+var sqlAdministratorLoginPassword = 'Ab!${uniqueString(resourceGroup().id)}${uniqueString(resourceGroup().id)}'
 
 var sourceControlRepoUrl = 'https://github.com/arincoau/four-tips-securing-serverless'
 var sourceControlBranch = 'main'
@@ -123,3 +121,4 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 
 output functionAppTestUrl string = 'https://${functionApp.properties.defaultHostName}/api/TopFiveProducts'
 output functionAppName string = '${functionApp.name}'
+output sqlServerName string = '${sqlServer.name}'

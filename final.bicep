@@ -1,10 +1,5 @@
 targetScope = 'resourceGroup'
 
-param sqlAdministratorLogin string
-
-@secure()
-param sqlAdministratorLoginPassword string
-
 param authClientId string
 
 @secure()
@@ -16,6 +11,9 @@ var appInsightsName = 'secure-ai'
 var sqlserverName = 'secure-${uniqueString(resourceGroup().id)}'
 var storageAccountName = 'secure${uniqueString(resourceGroup().id)}'
 var databaseName = 'secure-db'
+
+var sqlAdministratorLogin = 'adminuser'
+var sqlAdministratorLoginPassword = 'Ab!${uniqueString(resourceGroup().id)}${uniqueString(resourceGroup().id)}'
 
 var sourceControlRepoUrl = 'https://github.com/arincoau/four-tips-securing-serverless'
 var sourceControlBranch = 'main'
@@ -78,6 +76,9 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
   name: functionAppName
   location: resourceGroup().location
   kind: 'functionapp'
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     serverFarmId: appServicePlan.id
   }
@@ -95,6 +96,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
       SCM_COMMAND_IDLE_TIMEOUT: '10000'
       WEBJOBS_IDLE_TIMEOUT: '10000'
       MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: authClientSecret
+      UseManagedIdentity: 'true'
     }
   }
 
@@ -103,7 +105,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
     properties: {
       AdventureWorks: {
         type: 'SQLAzure'
-        value: 'Server=tcp:${sqlServer.name}${environment().suffixes.sqlServerHostname},1433;Database=${databaseName};User ID=${sqlAdministratorLogin};Password=${sqlAdministratorLoginPassword}'
+        value: 'Server=tcp:${sqlServer.name}${environment().suffixes.sqlServerHostname},1433;Database=${databaseName}'
       }
     }
   }
@@ -121,32 +123,36 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
     name: 'authsettingsV2'
     properties: {
       globalValidation: {
-        properties: {
-          requireAuthentication: true
-          unauthenticatedClientAction: 'Return401'
-          redirectToProvider: 'azureactivedirectory'
-        }
+        requireAuthentication: true
+        unauthenticatedClientAction: 'Return401'
+        redirectToProvider: 'azureactivedirectory'
       }
+
       identityProviders: {
         properties: {
           azureActiveDirectory: {
             properties: {
-              enabled: true
-              registration: {
-                properties: {
-                  openIdIssuer: 'https://sts.windows.net/${subscription().tenantId}'
-                  clientId: authClientId
-                  clientSecretSettingName: 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
-                }
-              }
               validation: {
                 properties: {
                   allowedAudiences: [
-                    'api://${authClientId}'
+                    
                   ]
                 }
               }
             }
+          }
+        }
+        azureActiveDirectory: {
+          enabled: true
+          registration: {
+            openIdIssuer: 'https://sts.windows.net/${subscription().tenantId}'
+            clientId: authClientId
+            clientSecretSettingName: 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
+          }
+          validation: {
+            allowedAudiences: [
+              'api://${authClientId}'
+            ]
           }
         }
       }
@@ -165,3 +171,4 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 
 output functionAppTestUrl string = 'https://${functionApp.properties.defaultHostName}/api/TopFiveProducts'
 output functionAppName string = '${functionApp.name}'
+output sqlServerName string = '${sqlServer.name}'
