@@ -22,6 +22,9 @@ var keyVaultSecretsUserRoleDefinitionId = '/subscriptions/${subscription().subsc
 var sourceControlRepoUrl = 'https://github.com/arincoau/four-tips-securing-serverless'
 var sourceControlBranch = 'main'
 
+var msProviderAuthSecretName = 'msProviderAuthSecret'
+var storageAccountConnectionStringSecretName = 'storageAccountConnectionStringSecret'
+
 resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   name: sqlserverName
   location: resourceGroup().location
@@ -90,7 +93,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
   resource appSettings 'config@2021-01-15' = {
     name: 'appsettings'
     properties: {
-      AzureWebJobsStorage: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
+      AzureWebJobsStorage: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${storageAccountConnectionStringSecretName})'
       WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
       APPINSIGHTS_INSTRUMENTATIONKEY: '${applicationInsights.properties.InstrumentationKey}'
       WEBSITE_SKIP_CONTENTSHARE_VALIDATION: '1'
@@ -99,7 +102,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
       FUNCTIONS_WORKER_RUNTIME: 'dotnet'
       SCM_COMMAND_IDLE_TIMEOUT: '10000'
       WEBJOBS_IDLE_TIMEOUT: '10000'
-      MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: authClientSecret
+      MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${msProviderAuthSecretName})'
       UseManagedIdentity: 'true'
     }
   }
@@ -181,6 +184,20 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
     }
     tenantId: subscription().tenantId
     enableRbacAuthorization: true
+  }
+
+  resource msProviderAuthSecret 'secrets@2021-04-01-preview' = {
+    name: msProviderAuthSecretName
+    properties: {
+      value: authClientSecret
+    }
+  }
+
+  resource storageAccountConnectionStringSecret 'secrets@2021-04-01-preview' = {
+    name: storageAccountConnectionStringSecretName
+    properties: {
+      value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
+    }
   }
 }
 
