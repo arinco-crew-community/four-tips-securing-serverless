@@ -22,7 +22,7 @@ namespace Arinco.Secure.Serverless
         {
             log.LogInformation("TopFiveProducts function started processing a request.");
 
-            var connectionString = Environment.GetEnvironmentVariable($"SQLAZURECONNSTR_AdventureWorks}");
+            var connectionString = Environment.GetEnvironmentVariable("SQLAZURECONNSTR_AdventureWorks");
             var useManagedIdentity = Environment.GetEnvironmentVariable("UseManagedIdentity") == "true";
 
             await using var conn = new SqlConnection(connectionString);
