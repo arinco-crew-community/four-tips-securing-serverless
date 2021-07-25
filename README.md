@@ -206,19 +206,106 @@ az deployment group create --resource-group secure-rg --template-file main.bicep
 
 ```
 
-The last thing we need to do is grant our Function App access to query our Azure SQL database. We are going to do this by adding our Function App as an administrator of the Azure SQL server. **Note: This is not recommended for production scenarios and is for testing purposed only!!!**
+The last thing we need to do is grant our Function App access to query our Azure SQL database. 
 
-To do this we will use the AZ CLI and can do so by executing the following commands. You'll need to replace `{appId}` with the `appId` value noted down earlier and `{sqlServer}` value with the `sqlServerName` value output from the deployment.
+We need to add ourselves as an administrator of the Azure SQL server. To do this we will use the AZ CLI and execute the following commands. You'll need to replace `{upn}` with the email address you use to authenticate with Azure. The `{sqlServer}` value needs to be replaced with the `sqlServerName` value output from the deployment.
+
+``` sh
+
+upn={upn}
+sqlServer=secure-ra5lwu4dye23e
+objectId=$(az ad user show --id $upn --out tsv --query objectId)
+az sql server ad-admin create --object-id $objectId --display-name $upn --resource-group secure-rg --server $sqlServer
+
+```
+
+Now we can grant the Function App the required permission to query our database.
+
+1. Visit the [Azure Portal](http://portal.azure.com)
+1. Login and navigate to the `secure-rg` resource group
+1. Locate the `secure-db` Azure SQL database
+1. Open the Query Editor (preview) pane
+1. Click Continue as {Your email address}
+1. Click Whitelist IP x.x.x.x on server secure-....
+1. Click Continue as {Your email address}
+1. Execute the following SQL statement replacing both `{functionAppName}` tokens with the name of your Function App.
+
+``` sql
+
+CREATE USER [{functionAppName}] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_datareader ADD MEMBER [{functionAppName}];
+GO
+
+```
+
+Now we can test our API directly from AZ CLI again. Replacing `{appId}` and `{functionAppName}` with their respective values.
 
 ``` sh
 
 appId={appId}
-sqlServer={sqlServer}
-objectId=$(az ad app show --id $appId --out tsv --query objectId)
-az sql server ad-admin create --object-id $objectId --display-name $appId --resource-group secure-rg --server $sqlServer
+functionAppName={functionAppName}
+az rest -m get --header "Accept=application/json" -u "https://$functionAppName.azurewebsites.net/api/TopFiveProducts" --resource "api://$appId"
 
 ```
 
 ## Tip 3 - Store application secrets in Key Vault
+
+Another thing you may want to consider doing to secure your serverless applications in Azure is to store your application secrets in an Azure Key Vault. To do this you need to deploy a Azure Key Vault, store your application secrets in it and grant your Function App access to retrieve those secrets using Key Vault references.
+
+Let's jump right in and deploy a Key Vault through our bicep template. To start with we need to add an Azure Key Vault resource to our `main.bicep`.
+
+``` bicep
+
+resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
+  name: keyVaultName
+  location: resourceGroup().location
+  properties: {
+    sku: {
+      name: 'standard'
+      family: 'A'
+    }
+    tenantId: subscription().tenantId
+    enableRbacAuthorization: true
+  }
+}
+
+```
+
+We also need to define a new `keyVaultName` variable. Let's do this at the top of the file under the `storageAccountName` variable.
+
+``` bicep
+
+var keyVaultName = 'secure${uniqueString(resourceGroup().id)}'
+
+```
+
+Now we need to grant our function app access to retrieve secrets from the Key Vault. To do this we will grant the Function App the `Key Vault Secret User`. This role has a GUID of `4633458b-17de-408a-b874-0445c86b69e6` which we can validate on in the Key Vault RBAC documentation [here](https://docs.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli#azure-built-in-roles-for-key-vault-data-plane-operations).
+
+We need to create two new variables at the top of our `main.bicep` file. The first variable `keyVaultSecretsUserRoleDefinitionGuid` is the GUID of the `Key Vault Secret User` and the second `keyVaultSecretsUserRoleDefinitionId` is a resource ID referencing the `Key Vault Secret User` role.
+
+``` bicep
+
+var keyVaultSecretsUserRoleDefinitionGuid = '4633458b-17de-408a-b874-0445c86b69e6'
+var keyVaultSecretsUserRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/${keyVaultSecretsUserRoleDefinitionGuid}'
+
+```
+
+Next we will add a role assignment resource granting the Function App the `Key Vault Secret User` for the Key Vault we are deploying.
+
+``` bicep
+
+resource keyVaultRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+  name: guid(keyVault.id, keyVaultSecretsUserRoleDefinitionGuid, functionApp.name)
+  scope: keyVault
+  properties: {
+    principalId: functionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: keyVaultSecretsUserRoleDefinitionId
+  }
+}
+
+```
+
+Now let's move some of our sensitive values from our Function App configuration to our Key Vault and update their values to Key Vault references.
 
 ## Tip 4 - Deploy a private endpoint

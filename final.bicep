@@ -10,10 +10,14 @@ var appServicePlanName = 'secure-asp'
 var appInsightsName = 'secure-ai'
 var sqlserverName = 'secure-${uniqueString(resourceGroup().id)}'
 var storageAccountName = 'secure${uniqueString(resourceGroup().id)}'
+var keyVaultName = 'secure${uniqueString(resourceGroup().id)}'
 var databaseName = 'secure-db'
 
 var sqlAdministratorLogin = 'adminuser'
-var sqlAdministratorLoginPassword = 'Ab!${uniqueString(resourceGroup().id)}${uniqueString(resourceGroup().id)}'
+var sqlAdministratorLoginPassword = 'Ab!${uniqueString(resourceGroup().id, '578c0de6-da0e-44e5-b278-00d84df2e5b2')}${uniqueString(resourceGroup().id, '245581c3-edf8-41f4-b60b-1a4b8485bdaa')}'
+
+var keyVaultSecretsUserRoleDefinitionGuid = '4633458b-17de-408a-b874-0445c86b69e6'
+var keyVaultSecretsUserRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/${keyVaultSecretsUserRoleDefinitionGuid}'
 
 var sourceControlRepoUrl = 'https://github.com/arincoau/four-tips-securing-serverless'
 var sourceControlBranch = 'main'
@@ -134,9 +138,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
             properties: {
               validation: {
                 properties: {
-                  allowedAudiences: [
-                    
-                  ]
+                  allowedAudiences: []
                 }
               }
             }
@@ -166,6 +168,29 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   location: resourceGroup().location
   properties: {
     Application_Type: 'web'
+  }
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
+  name: keyVaultName
+  location: resourceGroup().location
+  properties: {
+    sku: {
+      name: 'standard'
+      family: 'A'
+    }
+    tenantId: subscription().tenantId
+    enableRbacAuthorization: true
+  }
+}
+
+resource keyVaultRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+  name: guid(keyVault.id, keyVaultSecretsUserRoleDefinitionGuid, functionApp.name)
+  scope: keyVault
+  properties: {
+    principalId: functionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: keyVaultSecretsUserRoleDefinitionId
   }
 }
 
