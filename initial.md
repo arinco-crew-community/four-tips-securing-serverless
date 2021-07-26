@@ -22,4 +22,4 @@ The last tip to secure your serverless application in Azure is to deploy Private
 
 ## Conclusion
 
-In this blog post we've outlined some of the easiest and best ways to improve the security of your serverless applications and PaaS services in Azure. Join us in the four part series where we take these tips and apply them to an Azure Function.
+In this blog post we've outlined some of the easiest and best ways to improve the security of your serverless applications and PaaS services in Azure. Join us in the four part series where we take these tips and apply them to an Azure Function App.
