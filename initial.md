@@ -1,0 +1,25 @@
+# Four tips for Securing your serverless applications in Azure
+
+Serverless applications and Platform as a Service (PaaS) services are awesome! They cost less, take less time to develop, are easier to deploy and can even increase developer productivity. However, these benefits don't come without some trade offs. By default serverless applications and PaaS services are publicly accessible, application secrets can be stored in code and authentication isn't automatically enabled.
+
+In this blog post we will take a look at how we can deal with some of these trade offs and secure our serverless applications and PaaS services in Azure. This post will be followed by a four part series of posts where we take these tips and progressively apply them to an Azure Function App. Validating along the way that our changes have been successful and our app is secure.
+
+## Tip 1 - Enable Azure AD authentication
+
+One of the first things that you can do to secure our Function App is to enable Azure AD authentication. Once Azure AD authentication enabled, all requests to a Function App will need to provide a valid Azure AD bearer token. Any requests without a valid token will be denied access.
+
+## Tip 2 - Configure a Managed Identity and grant access to Azure resources
+
+Another thing you may want to do to improve the security of Function Apps is to configure a managed identity for your Function App. A managed identity allows you to grant the Function App access to other Azure resources without having to store credentials in code. Managed identities use certificate based authentication and their credentials are rotated every 45 days.
+
+## Tip 3 - Store application secrets in Key Vault
+
+The third tip to secure your serverless applications in Azure is to store your application secrets in an Azure Key Vault. To do this you need to deploy a Azure Key Vault, store your application secrets in it and grant your Function App access to retrieve those secrets using Key Vault references.
+
+## Tip 4 - Deploy Private Endpoints for your Azure resources
+
+The last tip to secure your serverless application in Azure is to deploy Private Endpoints for your Azure resources. Azure Private Endpoints enable you to secure access to your Platform as a Service (PaaS) Azure resources by deploying a network interface inside your Azure Virtual Network and linking this to your PaaS service. This effectively brings the services into your Virtual Network. Once deployed you can deny access to your resources from the internet and only allow access from your Private Endpoint.
+
+## Conclusion
+
+In this blog post we've outlined some of the easiest and best ways to improve the security of your serverless applications and PaaS services in Azure. Join us in the four part series where we take these tips and apply them to an Azure Function.
