@@ -8,18 +8,55 @@ In this blog post we will take a look at how we can deal with some of these trad
 
 One of the first things that you can do to secure our Function App is to enable Azure AD authentication. Once Azure AD authentication enabled, all requests to a Function App will need to provide a valid Azure AD bearer token. Any requests without a valid token will be denied access.
 
+Some of the benefits of enabling Azure AD authentication are:
+
+- Can be enabled through configuration without having to implement it yourself.
+- Not dependent on a specific language, SDK or code.
+- Authorization behaviour can be customised per your requirements.
+
+The following diagram shows the basic flow of enabling Azure AD authentication.
+
+![Azure AD authentication](secure_blog_1.png)
+
 ## Tip 2 - Configure a Managed Identity and grant access to Azure resources
 
 Another thing you may want to do to improve the security of Function Apps is to configure a managed identity for your Function App. A managed identity allows you to grant the Function App access to other Azure resources without having to store credentials in code. Managed identities use certificate based authentication and their credentials are rotated every 45 days.
+
+Some of the benefits of using managed identities are:
+
+- You no longer need to manage credentials to access your Azure resources.
+- You can use your managed identity to access any resource that supports Azure AD authentication. Including your own APIs!
+- Credentials for managed identities are automatically rotated for you.
+
+The following diagram shows how to enable a managed identity for a function app and grant access to an Azure SQL database.
+
+![Managed Identity](secure_blog_2.png)
 
 ## Tip 3 - Store application secrets in Key Vault
 
 The third tip to secure your serverless applications in Azure is to store your application secrets in an Azure Key Vault. To do this you need to deploy a Azure Key Vault, store your application secrets in it and grant your Function App access to retrieve those secrets using Key Vault references.
 
+Some of the benefits of using an Azure Key Vault are:
+
+- Using Azure Key Vault allows you to centralise the storage of your secrets. Reducing the chance that they are leaked.
+- Access to Key Vault requires authentication and authorization before a user (or application) can access.
+- By integrating with Azure Monitor. Monitoring can be enabled to log who is accessing your Key Vault and when.
+
 ## Tip 4 - Deploy Private Endpoints for your Azure resources
 
 The last tip to secure your serverless application in Azure is to deploy Private Endpoints for your Azure resources. Azure Private Endpoints enable you to secure access to your Platform as a Service (PaaS) Azure resources by deploying a network interface inside your Azure Virtual Network and linking this to your PaaS service. This effectively brings the services into your Virtual Network. Once deployed you can deny access to your resources from the internet and only allow access from your Private Endpoint.
 
+Some of the benefits of using an Azure Private Endpoints are:
+
+- Private Endpoint enable you to privately access Azure PaaS services from your Azure Virtual Networks.
+- Privately access your Azure PaaS services from your on-premise network. When used in conjunction with with ExpressRoute or a VPN connection, Private Endpoints can enable you to privately access your Azure PaaS services from your on-premises network.
+- Protect against data leakage. Private Endpoints are mapped to instances for PaaS resources instead of the entire service. This helps to protect against data leakage risks. 
+
+The following diagram shows the basic architecture to deploy a Private Endpoint for an Azure SQL server and enable access from a Function App.
+
+![Private Endpoints](secure_blog_3.png)
+
 ## Conclusion
 
-In this blog post we've outlined some of the easiest and best ways to improve the security of your serverless applications and PaaS services in Azure. Join us in the four part series where we take these tips and apply them to an Azure Function App.
+  In this blog post we've outlined some of the easiest and best ways to improve the security of your serverless applications and PaaS services in Azure. We've also highlighted some of the benefits of using them. Join us in the four part series where we take these tips and apply them to an Azure Function App.
+  
