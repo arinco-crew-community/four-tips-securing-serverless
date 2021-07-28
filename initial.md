@@ -46,4 +46,4 @@ Some of the benefits of using an Azure Private Endpoints are:
 
 ## Conclusion
 
-This blog post has outlined some of the easiest and best ways to improve the security of serverless applications and PaaS services in Azure. It's highlighted some of the benefits of using them. Check out the first in the four part series where we take these tips and apply them to an Azure Function App.
+This blog post has highlighted some of the easiest and best ways to improve the security of serverless applications and PaaS services in Azure and highlighted some of the benefits of using them. If you'd like to find out how you can apply these tips to a serverless application in Azure check out the four part series where these tips and progressively apply them to an Azure Function App.
