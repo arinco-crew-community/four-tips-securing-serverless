@@ -26,7 +26,7 @@ Some of the benefits of using managed identities are:
 
 ## Tip 3 - Store application secrets in Key Vault
 
-The third tip to secure your serverless applications in Azure is to store your application secrets in an Azure Key Vault. To do this you need to deploy a Azure Key Vault, store your application secrets in it and grant your Function App access to retrieve those secrets using an Azure AD role.
+The third tip to secure your serverless applications in Azure is to store your application secrets such as certificates or passwords in an Azure Key Vault. To do this you need to deploy a Azure Key Vault, store your application secrets in it and grant your Function App access to retrieve those secrets using an Azure AD roles.
 
 Some of the benefits of using an Azure Key Vault are:
 
