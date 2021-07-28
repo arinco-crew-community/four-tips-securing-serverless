@@ -2,7 +2,7 @@
 
 Serverless applications and Platform as a Service (PaaS) services are awesome! They cost less, take less time to develop, are easier to deploy and can even increase developer productivity. However, these benefits don't come without some trade offs. By default serverless applications and PaaS services are publicly accessible, application secrets can be stored in code and authentication isn't automatically enabled.
 
-In this blog post we will take a look at how we can deal with some of these trade offs and secure our serverless applications and PaaS services in Azure. This post will be followed by a four part series of posts where we take these tips and progressively apply them to an Azure Function App. Validating along the way that our changes have been successful and our app is secure. If you'd like to  
+In this blog post we will take a look at how we can deal with some of these trade offs and secure our serverless applications and PaaS services in Azure. This post will be followed by a four part series of posts where we take these tips and progressively apply them to an Azure Function App. Validating along the way that our changes have been successful and our app is secure.
 
 ## Tip 1 - Enable Azure AD authentication
 
