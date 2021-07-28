@@ -14,10 +14,6 @@ Some of the benefits of enabling Azure AD authentication are:
 - Not dependent on a specific language, SDK or code.
 - Authorization behaviour can be customised per your requirements.
 
-The following diagram shows the basic flow of enabling Azure AD authentication.
-
-![Azure AD authentication](secure_blog_1.png)
-
 ## Tip 2 - Configure a Managed Identity and grant access to Azure resources
 
 Another thing you may want to do to improve the security of Function Apps is to configure a managed identity for your Function App. A managed identity allows you to grant the Function App access to other Azure resources without having to store credentials in code. Managed identities use certificate based authentication and their credentials are rotated every 45 days.
@@ -27,10 +23,6 @@ Some of the benefits of using managed identities are:
 - You no longer need to manage credentials to access your Azure resources.
 - You can use your managed identity to access any resource that supports Azure AD authentication. Including your own APIs!
 - Credentials for managed identities are automatically rotated for you.
-
-The following diagram shows how to enable a managed identity for a function app and grant access to an Azure SQL database.
-
-![Managed Identity](secure_blog_2.png)
 
 ## Tip 3 - Store application secrets in Key Vault
 
@@ -51,10 +43,6 @@ Some of the benefits of using an Azure Private Endpoints are:
 - Private Endpoint enable you to privately access Azure PaaS services from your Azure Virtual Networks.
 - Privately access your Azure PaaS services from your on-premise network. When used in conjunction with with ExpressRoute or a VPN connection, Private Endpoints can enable you to privately access your Azure PaaS services from your on-premises network.
 - Protect against data leakage. Private Endpoints are mapped to instances for PaaS resources instead of the entire service. This helps to protect against data leakage risks. 
-
-The following diagram shows the basic architecture to deploy a Private Endpoint for an Azure SQL server and enable access from a Function App.
-
-![Private Endpoints](secure_blog_3.png)
 
 ## Conclusion
 
