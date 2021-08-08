@@ -100,7 +100,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
     }
   }
 
-  resource sourceControl 'sourcecontrols@2021-01-15' = {
+  resource sourceControl 'sourcecontrols@2020-12-01' = {
     name: 'web'
     properties: {
       repoUrl: sourceControlRepoUrl

@@ -10,20 +10,13 @@ var appServicePlanName = 'secure-asp'
 var appInsightsName = 'secure-ai'
 var sqlserverName = 'secure-${uniqueString(resourceGroup().id)}'
 var storageAccountName = 'secure${uniqueString(resourceGroup().id)}'
-var keyVaultName = 'secure${uniqueString(resourceGroup().id)}'
 var databaseName = 'secure-db'
 
 var sqlAdministratorLogin = 'adminuser'
-var sqlAdministratorLoginPassword = 'Ab!${uniqueString(resourceGroup().id, '578c0de6-da0e-44e5-b278-00d84df2e5b2')}${uniqueString(resourceGroup().id, '245581c3-edf8-41f4-b60b-1a4b8485bdaa')}'
-
-var keyVaultSecretsUserRoleDefinitionGuid = '4633458b-17de-408a-b874-0445c86b69e6'
-var keyVaultSecretsUserRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/${keyVaultSecretsUserRoleDefinitionGuid}'
+var sqlAdministratorLoginPassword = 'Ab!${uniqueString(resourceGroup().id)}${uniqueString(resourceGroup().id)}'
 
 var sourceControlRepoUrl = 'https://github.com/arincoau/four-tips-securing-serverless'
 var sourceControlBranch = 'main'
-
-var msProviderAuthSecretName = 'msProviderAuthSecret'
-var storageAccountConnectionStringSecretName = 'storageAccountConnectionStringSecret'
 
 resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   name: sqlserverName
@@ -83,9 +76,6 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
   name: functionAppName
   location: resourceGroup().location
   kind: 'functionapp'
-  identity: {
-    type: 'SystemAssigned'
-  }
   properties: {
     serverFarmId: appServicePlan.id
   }
@@ -93,7 +83,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
   resource appSettings 'config@2021-01-15' = {
     name: 'appsettings'
     properties: {
-      AzureWebJobsStorage: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${storageAccountConnectionStringSecretName})'
+      AzureWebJobsStorage: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
       WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
       APPINSIGHTS_INSTRUMENTATIONKEY: '${applicationInsights.properties.InstrumentationKey}'
       WEBSITE_SKIP_CONTENTSHARE_VALIDATION: '1'
@@ -102,8 +92,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
       FUNCTIONS_WORKER_RUNTIME: 'dotnet'
       SCM_COMMAND_IDLE_TIMEOUT: '10000'
       WEBJOBS_IDLE_TIMEOUT: '10000'
-      MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${msProviderAuthSecretName})'
-      UseManagedIdentity: 'true'
+      MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: authClientSecret
     }
   }
 
@@ -112,7 +101,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
     properties: {
       AdventureWorks: {
         type: 'SQLAzure'
-        value: 'Server=tcp:${sqlServer.name}${environment().suffixes.sqlServerHostname},1433;Database=${databaseName}'
+        value: 'Server=tcp:${sqlServer.name}${environment().suffixes.sqlServerHostname},1433;Database=${databaseName};User ID=${sqlAdministratorLogin};Password=${sqlAdministratorLoginPassword}'
       }
     }
   }
@@ -134,7 +123,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
         unauthenticatedClientAction: 'Return401'
         redirectToProvider: 'azureactivedirectory'
       }
-
+  
       identityProviders: {
         azureActiveDirectory: {
           enabled: true
@@ -160,43 +149,6 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   location: resourceGroup().location
   properties: {
     Application_Type: 'web'
-  }
-}
-
-resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
-  name: keyVaultName
-  location: resourceGroup().location
-  properties: {
-    sku: {
-      name: 'standard'
-      family: 'A'
-    }
-    tenantId: subscription().tenantId
-    enableRbacAuthorization: true
-  }
-
-  resource msProviderAuthSecret 'secrets@2021-04-01-preview' = {
-    name: msProviderAuthSecretName
-    properties: {
-      value: authClientSecret
-    }
-  }
-
-  resource storageAccountConnectionStringSecret 'secrets@2021-04-01-preview' = {
-    name: storageAccountConnectionStringSecretName
-    properties: {
-      value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
-    }
-  }
-}
-
-resource keyVaultRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
-  name: guid(keyVault.id, keyVaultSecretsUserRoleDefinitionGuid, functionApp.name)
-  scope: keyVault
-  properties: {
-    principalId: functionApp.identity.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: keyVaultSecretsUserRoleDefinitionId
   }
 }
 
