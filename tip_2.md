@@ -1,10 +1,10 @@
-# Securing your serverless applications in Azure - Part 2/4 Configure Managed Identity
+# Securing serverless applications in Azure - Part 2/4 Configure Managed Identity
 
-This is the second in a four part series of posts on securing your serverless application in Azure using bicep. In this series we take a look at how you can secure your serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](http://github.com)
+This is the second in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](http://github.com)
 
 All of the commands in this blog post are expected to be run on a Linux shell.
 
-This blog post expects that you have completed the setup and configuration in part 1. If you haven't done so, go check it out and then return here. [Securing your serverless applications in Azure - Part 1/4 Enable Azure AD authentication](https://arinco.com.au/blog/securing-your-serverless-applications-in-azure-part-1-4-enable-azure-ad-authentication)
+This blog post expects that you have completed the setup and configuration in part 1. If you haven't done so, go check it out and then return here. [Securing serverless applications in Azure - Part 1/4 Enable Azure AD authentication](https://arinco.com.au/blog/securing-serverless-applications-in-azure-part-1-4-enable-azure-ad-authentication)
 
 ## Tip 2 - Configure a Managed Identity and grant access to Azure resources
 
@@ -113,4 +113,4 @@ You should be returned a JSON response with the top 5 products from the API.
 
 ## Conclusion
 
-In this blog post we looked at how you can configure a managed identity for your Azure Function App and grant access to an Azure SQL database. Join me in the next blog post of this series where we look at how you can store application secrets in Azure Key Vault.
+In this blog post we looked at how you can configure a managed identity for a Azure Function App and grant access to an Azure SQL database. Join me in the next blog post of this series where we look at how you can store application secrets in Azure Key Vault.
