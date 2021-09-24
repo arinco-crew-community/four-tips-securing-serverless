@@ -1,16 +1,17 @@
 targetScope = 'resourceGroup'
 
-var functionAppName = 'secure-${uniqueString(resourceGroup().id)}'
+var uniqueAppName = uniqueString(resourceGroup().id)
+var functionAppName = 'secure-${uniqueAppName}'
 var appServicePlanName = 'secure-asp'
 var appInsightsName = 'secure-ai'
-var sqlserverName = 'secure-${uniqueString(resourceGroup().id)}'
-var storageAccountName = 'secure${uniqueString(resourceGroup().id)}'
+var sqlserverName = 'secure-${uniqueAppName}'
+var storageAccountName = 'secure${uniqueAppName}'
 var databaseName = 'secure-db'
 
 var sqlAdministratorLogin = 'adminuser'
 var sqlAdministratorLoginPassword = 'Ab!${uniqueString(resourceGroup().id)}${uniqueString(resourceGroup().id)}'
 
-var sourceControlRepoUrl = 'https://github.com/arincoau/four-tips-securing-serverless'
+var sourceControlRepoUrl = 'https://github.com/arincoau/four-tips-securing-serverless.git'
 var sourceControlBranch = 'main'
 
 resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
@@ -33,6 +34,10 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   resource database 'databases@2021-02-01-preview' = {
     name: databaseName
     location: resourceGroup().location
+    sku: {
+      name: 'Basic'
+      tier: 'Basic'
+    }
     properties: {
       sampleName: 'AdventureWorksLT'
     }
@@ -81,7 +86,6 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
       AzureWebJobsStorage: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
       WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
       APPINSIGHTS_INSTRUMENTATIONKEY: '${applicationInsights.properties.InstrumentationKey}'
-      WEBSITE_SKIP_CONTENTSHARE_VALIDATION: '1'
       WEBSITE_CONTENTSHARE: '${functionApp.name}'
       FUNCTIONS_EXTENSION_VERSION: '~3'
       FUNCTIONS_WORKER_RUNTIME: 'dotnet'
@@ -107,6 +111,11 @@ resource functionApp 'Microsoft.Web/sites@2021-01-15' = {
       branch: sourceControlBranch
       isManualIntegration: true
     }
+
+    dependsOn: [
+      appSettings
+      connectionstrings
+    ]
   }
 }
 
