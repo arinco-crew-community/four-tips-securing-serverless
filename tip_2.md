@@ -1,8 +1,8 @@
 # Securing serverless applications in Azure - Part 2/4 Configure Managed Identity
 
-This is the second in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](http://github.com)
+This is the second in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
 
-All of the commands in this blog post are expected to be run on a Linux shell.
+All of the commands in this blog post are expected to be run using Powershell.
 
 This blog post expects that you have completed the setup and configuration in part 1. If you haven't done so, go check it out and then return here. [Securing serverless applications in Azure - Part 1/4 Enable Azure AD authentication](https://arinco.com.au/blog/securing-serverless-applications-in-azure-part-1-4-enable-azure-ad-authentication)
 

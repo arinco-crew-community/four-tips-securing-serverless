@@ -1,17 +1,17 @@
-# Securing your serverless applications in Azure - Part 3/4 Store application secrets in Key Vault
+# Securing serverless applications in Azure - Part 3/4 Store application secrets in Key Vault
 
-This is the fourth and last in a four part series of posts on securing your serverless application in Azure using bicep. In this series we take a look at how you can secure your serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](http://github.com)
+This is the third in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
 
-All of the commands in this blog post are expected to be run on a Linux shell.
+All of the commands in this blog post are expected to be run using Powershell.
 
-This blog post expects that you have completed the setup and configuration in parts 1, 2, and 3.
+This blog post expects that you have completed the setup and configuration in parts 1 and 2.
 
-[Securing your serverless applications in Azure - Tip 1/4 Enable Azure AD authentication]()
-[Securing your serverless applications in Azure - Tip 2/4 Configure Managed Identity]()
+[Securing serverless applications in Azure - Part 1/4 Enable Azure AD authentication](https://arinco.com.au/blog/securing-serverless-applications-in-azure-part-1-4-enable-azure-ad-authentication)
+[Securing serverless applications in Azure - Part 2/4 Configure Managed Identity](https://arinco.com.au/uncategorized/securing-serverless-applications-in-azure-part-2-4-configure-managed-identity)
 
 ## Tip 3 - Store application secrets in Key Vault
 
-Another thing you may want to consider doing to secure your serverless applications in Azure is to store your application secrets in an Azure Key Vault. To do this you need to deploy a Azure Key Vault, store your application secrets in it and grant your Function App access to retrieve those secrets using Key Vault references.
+Another thing you may want to consider doing to secure a serverless applications in Azure is to store application secrets in an Azure Key Vault. To do this you will need to deploy a Azure Key Vault, store application secrets in it and grant a Function App access to retrieve those secrets using Key Vault references.
 
 Let's jump right in and deploy a Key Vault through our bicep template. To start with we need to add an Azure Key Vault resource to our `main.bicep`.
 
@@ -36,7 +36,7 @@ We also need to define a new `keyVaultName` variable. Let's do this at the top o
 
 ``` bicep
 
-var keyVaultName = 'secure${uniqueString(resourceGroup().id)}'
+var keyVaultName = 'secure${uniqueAppName}'
 
 ```
 
@@ -55,7 +55,7 @@ Next we will add a role assignment resource granting the Function App the `Key V
 
 ``` bicep
 
-resource keyVaultRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
+resource keyVaultRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-08-01-preview' = {
   name: guid(keyVault.id, keyVaultSecretsUserRoleDefinitionGuid, functionApp.name)
   scope: keyVault
   properties: {
@@ -135,6 +135,14 @@ WEBSITE_SKIP_CONTENTSHARE_VALIDATION: '1'
 
 ```
 
+We can now deploy our `main.bicep` file again to apply this configuration. We'll be prompted for for `authClientId` and `authClientSecret` values, these are the `appId` and `password` values respectively that were noted down earlier.
+
+``` sh
+
+az deployment group create --resource-group secure-rg --template-file main.bicep --query properties.outputs
+
+```
+
 Now we can test our API directly from AZ CLI again. Replacing `{appId}` and `{functionAppName}` with their respective values.
 
 ``` sh
@@ -144,3 +152,9 @@ functionAppName={functionAppName}
 az rest -m get --header "Accept=application/json" -u "https://$functionAppName.azurewebsites.net/api/TopFiveProducts" --resource "api://$appId"
 
 ```
+
+You should be returned a JSON response with the top 5 products from the API.
+
+## Conclusion
+
+In this blog post we looked at how you can store application secrets in Key Vault for a Azure Function App. Join me in the next blog post of this series where we look at how to deploy Private Endpoints for your Azure resources.

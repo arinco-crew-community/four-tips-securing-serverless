@@ -1,6 +1,6 @@
 # Securing serverless applications in Azure - Part 1/4 Enable Azure AD authentication
 
-This is the first in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](http://github.com)
+This is the first in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
 
 Knowledge of the AZ CLI is assumed in this post. If you are new to AZ CLI please see  [getting started with az cli](https://docs.microsoft.com/en-us/cli/azure/get-started-with-azure-cli). All of the commands in this blog post are expected to be run using PowerShell.
 
