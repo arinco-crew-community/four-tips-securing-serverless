@@ -36,7 +36,7 @@ az deployment group create --resource-group secure-rg --template-file main.bicep
 
 ```
 
-The command will output the name of the Function App and URL that can be used to test the Function to ensure everything was configured correctly.
+This initial deployment may take some time as is builds and deploys a Function App project to the Azure Function. The command will output the name of the Function App and a URL that can be used to test the Function to ensure everything was configured correctly.
 
 ## Tip 1 - Enable Azure AD authentication
 
@@ -144,6 +144,8 @@ az rest -m PATCH -u https://graph.microsoft.com/beta/applications/$objectId --he
 ```
 
 Now we can test our API directly from AZ CLI. Replace `{appId}` with the `appId` from when the app registration was created and `{functionAppName}` with the name of your Function App.
+
+**You may receive an error running the following command. If you do you need to reauthenticate with az cli by running `az login`.
 
 ``` sh
 appId={appId}
