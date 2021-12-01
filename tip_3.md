@@ -18,7 +18,7 @@ Let's jump right in and deploy a Key Vault through our bicep template. To start 
 
 ``` bicep
 
-resource keyVault 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   name: keyVaultName
   location: resourceGroup().location
   properties: {
@@ -52,7 +52,7 @@ var keyVaultSecretsUserRoleDefinitionId = '/subscriptions/${subscription().subsc
 
 ```
 
-Next we will add a role assignment resource granting the Function App the `Key Vault Secret User` for the Key Vault we are deploying.
+Next we will add a role assignment resource granting the Function App the `Key Vault Secret User` for the Key Vault we are deploying. Place this resource below the Key Vault resource at the root level of the bicep template.
 
 ``` bicep
 
@@ -70,7 +70,7 @@ resource keyVaultRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-08
 
 Now let's move some of our sensitive values from our Function App configuration to our Key Vault and update their values to Key Vault references.
 
-Let's start by creating a couple of new variables for the names of our Key Vault secrets. Place these at the top of  your bicep file.
+Let's start by creating a couple of new variables for the names of our Key Vault secrets. Place these with the other variables at the top of your bicep file.
 
 ``` bicep
 
@@ -138,7 +138,7 @@ WEBSITE_SKIP_CONTENTSHARE_VALIDATION: '1'
 
 We can now deploy our `main.bicep` file again to apply this configuration. We'll be prompted for for `authClientId` and `authClientSecret` values, these are the `appId` and `password` values respectively that were noted down earlier.
 
-``` sh
+``` powershell
 
 az deployment group create --resource-group secure-rg --template-file main.bicep --query properties.outputs
 
@@ -146,10 +146,10 @@ az deployment group create --resource-group secure-rg --template-file main.bicep
 
 Now we can test our API directly from AZ CLI again. Replacing `{appId}` and `{functionAppName}` with their respective values.
 
-``` sh
+``` powershell
 
-appId={appId}
-functionAppName={functionAppName}
+$appId="{appId}"
+$functionAppName="{functionAppName}"
 az rest -m get --header "Accept=application/json" -u "https://$functionAppName.azurewebsites.net/api/TopFiveProducts" --resource "api://$appId"
 
 ```

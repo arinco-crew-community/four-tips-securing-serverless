@@ -22,7 +22,7 @@ The Function App code is deployed to the Function App using a source control ref
 
 Before we deploy the Azure resource we need to create a resource group.
 
-``` sh
+``` powershell
 
 az group create --name secure-rg --location australiaeast
 
@@ -30,7 +30,7 @@ az group create --name secure-rg --location australiaeast
 
 Now we can deploy the resources in our bicep file by running the following command.
 
-``` sh
+``` powershell
 
 az deployment group create --resource-group secure-rg --template-file main.bicep --query properties.outputs
 
@@ -50,7 +50,7 @@ Some of the benefits of enabling Azure AD authentication are:
 
 First thing we need to do is create an app registration. We can do this by executing the commands below. These commands will do the following: create the app registration, update  its App ID and generate a password credential. You'll need to replace the `{functionAppName}` with the functionAppName output from the initial deployment.
 
-``` sh
+``` powershell
 
 $functionAppName="{functionAppName}"
 $appId=$(az ad app create --display-name "$functionAppName-auth" --reply-urls "https://$functionAppName.azurewebsites.net/.auth/login/aad/callback" --query appId --out tsv)
@@ -117,7 +117,7 @@ MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: authClientSecret
 
 And that's it, we've finished the bicep configuration required for Azure AD authentication for our Function App. We can now deploy our `main.bicep` file again to apply this configuration. We'll be prompted for for `authClientId` and `authClientSecret` values, these are the `appId` and `password` values respectively that were noted down earlier.
 
-``` sh
+``` powershell
 
 az deployment group create --resource-group secure-rg --template-file main.bicep --query properties.outputs
 
@@ -125,9 +125,10 @@ az deployment group create --resource-group secure-rg --template-file main.bicep
 
 Now let's go ahead and test our API. First let's test it without an authorization header. You'll need to replace `{functionAppName}` with the name of your function app.
 
-``` sh
+``` powershell
 
-az rest -m get --header "Accept=application/json" -u "https://{functionAppName}.azurewebsites.net/api/TopFiveProducts" --skip-authorization-header
+$functionAppName="{functionAppName}"
+az rest -m get --header "Accept=application/json" -u "https://$functionAppName.azurewebsites.net/api/TopFiveProducts" --skip-authorization-header
 
 ```
 
@@ -135,8 +136,8 @@ This command should return a result with `Unauthorized(You do not have permissio
 
 Now let's configure the AZ CLI to be an authorized client for our API. We can do this by configuring the AZ CLI (represented by its appId `04b07795-8ddb-461a-bbee-02f9e1bf7b46`) as one of the `preAuthorizedApplications` of our app registration. Replace `{appId}` with the `appId` from when the app registration was created.
 
-``` sh
-$appId={appId}
+``` powershell
+$appId="{appId}"
 $objectId=$(az ad app show --id $appId --out tsv --query objectId)
 $apiPermission=$(az ad app show --id $appId -o tsv --query oauth2Permissions[0].id)
 az rest -m PATCH -u https://graph.microsoft.com/beta/applications/$objectId --headers Content-Type=application/json -b "{'api':{'preAuthorizedApplications':[{'appId':'04b07795-8ddb-461a-bbee-02f9e1bf7b46','permissionIds':['$apiPermission']}]}}"
@@ -147,9 +148,11 @@ Now we can test our API directly from AZ CLI. Replace `{appId}` with the `appId`
 
 **You may receive an error running the following command. If you do you need to reauthenticate with az cli by running `az login`.
 
-``` sh
-appId={appId}
-functionAppName={functionAppName}
+``` powershell
+
+$appId="{functionAppName}"
+$functionAppName="{appId}"
+
 az rest -m get --header "Accept=application/json" -u "https://$functionAppName.azurewebsites.net/api/TopFiveProducts" --resource "api://$appId"
 
 ```

@@ -42,7 +42,7 @@ Some of the benefits of using an Azure Private Endpoints are:
 
 - Private Endpoint enable you to privately access Azure PaaS services from your Azure Virtual Networks.
 - Privately access your Azure PaaS services from your on-premise network. When used in conjunction with ExpressRoute or a VPN connection, Private Endpoints can enable you to privately access your Azure PaaS services from your on-premises network.
-- With Private Endpoints you can disable internet access to your resources. This helps to protect against data leakage risks. 
+- With Private Endpoints you can disable internet access to your resources. This helps to protect against data leakage risks.
 
 ## Conclusion
 

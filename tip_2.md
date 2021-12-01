@@ -61,7 +61,7 @@ As you can see from the connection string we no longer require the username and 
 
 We can now deploy our `main.bicep` file again to apply this configuration. We'll be prompted for for `authClientId` and `authClientSecret` values, these are the `appId` and `password` values respectively that were noted down earlier.
 
-``` sh
+``` powershell
 
 az deployment group create --resource-group secure-rg --template-file main.bicep --query properties.outputs
 
@@ -71,7 +71,7 @@ The last thing we need to do is grant our Function App access to query our Azure
 
 We need to add ourselves as an administrator of the Azure SQL server. To do this we will use the AZ CLI and execute the following commands. You'll need to replace `{upn}` with the email address you use to authenticate with Azure. The `{sqlServer}` value needs to be replaced with the `sqlServerName` value output from the deployment.
 
-``` sh
+``` powershell
 
 $upn="{upn}"
 $sqlServer="{sqlServer}"
@@ -101,10 +101,10 @@ GO
 
 Now we can test our API directly from AZ CLI again. Replacing `{appId}` and `{functionAppName}` with their respective values.
 
-``` sh
+``` powershell
 
-appId={appId}
-functionAppName={functionAppName}
+$appId="{appId}"
+$functionAppName="{functionAppName}"
 az rest -m get --header "Accept=application/json" -u "https://$functionAppName.azurewebsites.net/api/TopFiveProducts" --resource "api://$appId"
 
 ```
