@@ -9,6 +9,7 @@ This blog post expects that you have completed the setup and configuration in pa
 [Securing serverless applications in Azure - Part 1/4 Enable Azure AD authentication](https://arinco.com.au/blog/securing-serverless-applications-in-azure-part-1-4-enable-azure-ad-authentication)
 
 [Securing serverless applications in Azure - Part 2/4 Configure Managed Identity](https://arinco.com.au/uncategorized/securing-serverless-applications-in-azure-part-2-4-configure-managed-identity)
+
 [Securing serverless applications in Azure - Part 3/4 Store application secrets in Key Vault](https://arinco.com.au/blog/securing-serverless-applications-in-azure-part-3-4-store-application-secrets-in-key-vault)
 
 ## Tip 4 - Deploy Private Endpoints for your Azure resources
