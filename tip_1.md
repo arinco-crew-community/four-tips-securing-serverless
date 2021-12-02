@@ -1,6 +1,6 @@
 # Securing serverless applications in Azure - Part 1/4 Enable Azure AD authentication
 
-This is the first in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
+This is the first in a four part series of posts on securing serverless applications in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features, validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
 
 Knowledge of the AZ CLI is assumed in this post. If you are new to AZ CLI please see  [getting started with az cli](https://docs.microsoft.com/en-us/cli/azure/get-started-with-azure-cli). All of the commands in this blog post are expected to be run using PowerShell.
 
@@ -8,9 +8,9 @@ Before we go ahead and configure Azure AD authentication we need a Function App 
 
 ## Setup
 
-We are going to start with a sample Azure Function that queries the Microsoft AdventureWorks demonstration database. It will query the database for the top 5 products, serialise them as JSON and return the result. The Function App code can we viewed [here](http://github.com).
+We are going to start with a sample Azure Function that queries the Microsoft AdventureWorks demonstration database. It will query the database for the top 5 products, serialise them as JSON and return the result. The Function App code can be viewed [here](https://github.com/arinco-crew-community/four-tips-securing-serverless/blob/main/Arinco.Secure.Serverless/Functions.cs).
 
-We will start with a pre-configured [main.bicep](https://raw.githubusercontent.com/arincoau/four-tips-securing-serverless/main/main.bicep) file. Which you can download [here](https://raw.githubusercontent.com/arincoau/four-tips-securing-serverless/main/main.bicep). This file contains the bicep configuration to deploy the following resource:
+We will start with a pre-configured [main.bicep](https://raw.githubusercontent.com/arincoau/four-tips-securing-serverless/main/main.bicep) file, which you can download [here](https://raw.githubusercontent.com/arincoau/four-tips-securing-serverless/main/main.bicep). This file contains the bicep configuration to deploy the following resource:
 
 - Function App
 - Storage Account
@@ -40,7 +40,7 @@ This initial deployment may take some time as is builds and deploys a Function A
 
 ## Tip 1 - Enable Azure AD authentication
 
-One of the first things that you can do to secure our Function App is to enable Azure AD authentication. Once Azure AD authentication enabled, all requests to a Function App will need to provide a valid Azure AD bearer token. Any requests without a valid token will be denied access.
+One of the first things you can do to secure the Function App is to enable Azure AD authentication. Once Azure AD authentication enabled, all requests to a Function App will need to provide a valid Azure AD bearer token. Any requests without a valid token will be denied access.
 
 Some of the benefits of enabling Azure AD authentication are:
 
@@ -48,7 +48,7 @@ Some of the benefits of enabling Azure AD authentication are:
 - Not dependent on a specific language, SDK or code.
 - Authorization behaviour can be customised per your requirements.
 
-First thing we need to do is create an app registration. We can do this by executing the commands below. These commands will do the following: create the app registration, update  its App ID and generate a password credential. You'll need to replace the `{functionAppName}` with the functionAppName output from the initial deployment.
+First thing we need to do is create an app registration by executing the commands below. These commands will do the following: create the app registration, update its App ID and generate a password credential. You'll need to replace the `{functionAppName}` with the functionAppName output from the initial deployment.
 
 ``` powershell
 
@@ -62,7 +62,7 @@ echo $appCredentials
 
 Take note of the `appId` and `password` values in the output as we'll be using these later.  
 
-Now let's update our bicep file with the required configuration for Azure AD authentication. At the top of the file add two new parameters. One named `authClientId` and the other `authClientSecret`. `authClientSecret` should be marked as a secure parameter.
+Now let's update our main.bicep file with the required configuration for Azure AD authentication. At the top of the file add two new parameters. One named `authClientId` and the other `authClientSecret`. `authClientSecret` should be marked as a secure parameter.
 
 ``` bicep
 
@@ -115,7 +115,7 @@ MICROSOFT_PROVIDER_AUTHENTICATION_SECRET: authClientSecret
 
 ```
 
-And that's it, we've finished the bicep configuration required for Azure AD authentication for our Function App. We can now deploy our `main.bicep` file again to apply this configuration. We'll be prompted for for `authClientId` and `authClientSecret` values, these are the `appId` and `password` values respectively that were noted down earlier.
+That's it, we've finished the bicep configuration required for Azure AD authentication for our Function App. We can now deploy our `main.bicep` file again to apply this configuration. We'll be prompted for `authClientId` and `authClientSecret` values, these are the `appId` and `password` values respectively that were noted down earlier.
 
 ``` powershell
 
