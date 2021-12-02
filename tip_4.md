@@ -299,4 +299,6 @@ You should be returned a JSON response with the top 5 products from the API.
 
 ## Conclusion
 
-In this blog post we looked at how you can deploy Private Endpoints for your Azure resources and enable access from a Function App. This is the last post in this series where we've look at how you can incrementally improve the security of your serverless application in Azure.
+In this blog post we looked at how you can deploy Private Endpoints for your Azure resources and enable access from a Function App. This is the last post in this series where we've looked at how you can incrementally improve the security of your serverless application in Azure.
+
+Don't forget to cleanup the resources which were created as part of this series, to avoid any unexpected costs.
