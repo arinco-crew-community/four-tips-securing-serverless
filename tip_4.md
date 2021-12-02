@@ -1,6 +1,6 @@
 # Securing your serverless applications in Azure - Part 4/4 Deploy Private Endpoints for your Azure resources
 
-This is the fourth and last part in series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
+This is the fourth and last part in series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features, validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
 
 All of the commands in this blog post are expected to be run using Powershell.
 
@@ -14,7 +14,7 @@ This blog post expects that you have completed the setup and configuration in pa
 
 ## Tip 4 - Deploy Private Endpoints for your Azure resources
 
-The final tip to securing serverless application in Azure is to deploy Private Endpoints for the Azure resources a Function App integrates with. Azure Private Endpoints enable you to secure access to your Platform as a Service (PaaS) Azure resources by deploying a network interface inside your Azure Virtual Network and linking this to your PaaS service. This effectively brings the services into your Virtual Network. Once deployed you can deny access to your resources from the internet and only allow access from your Private Endpoint.
+The final tip to securing serverless applications in Azure is to deploy Private Endpoints for the Azure resources a Function App integrates with. Azure Private Endpoints enable you to secure access to your Platform as a Service (PaaS) Azure resources by deploying a network interface inside your Azure Virtual Network and linking this to your PaaS service. This effectively brings the services into your Virtual Network. Once deployed you can deny access to your resources from the internet and only allow access from your Private Endpoint.
 
 Some of the benefits of using an Azure Private Endpoints are:
 
@@ -32,7 +32,7 @@ var virtualNetworkName = 'secure-vnet'
 
 ```
 
-Now we can add the virtual network resource declaration. We are going to create a virtual network with two subnets. One for our private endpoints and the other for virtual network integration required for the function app to access resources in the virtual network. Take note of the configuration of each subnet. On the private endpoint subnet we need to disable private endpoint network policies by setting `privateEndpointNetworkPolicies` to `Disabled`. Also the web subnet needs to be delegated to `Microsoft.Web/serverFarms` to allow virtual network integration.
+Now we can add the virtual network resource declaration by creating a virtual network with two subnets. One for our private endpoints and the other for the function app to access resources within the virtual network. Take note of the configuration of each subnet. On the private endpoint subnet we need to disable private endpoint network policies by setting `privateEndpointNetworkPolicies` to `Disabled`. Also the web subnet needs to be delegated to `Microsoft.Web/serverFarms` to allow virtual network integration.
 
 ``` bicep
 
@@ -82,7 +82,7 @@ We need Private DNS Zones for each of the resource types we want to support. In 
 - Azure Key Vault
   - privatelink.vaultcore.azure.net
 
-**Note: Due to limitation in private endpoint access for `WEBSITE_CONTENTAZUREFILECONNECTIONSTRING` private endpoints will not be configured for the storage account in this example.**
+**Note: Due to limitation in private endpoint access for function app storage account, private endpoints will not be configured for the storage account in this example.**
 
 So let's start by defining an array variable of these at the top of `main.bicep`
 
@@ -235,7 +235,7 @@ resource firewallRules 'firewallRules@2021-02-01-preview' = {
 
 ```
 
-Now to Key Vault and we need to add the following to the `properties` section of the `keyVault` resource definition.
+Now for Key Vault, we need to add the following to the `properties` section of the `keyVault` resource definition.
 
 ``` bicep
 

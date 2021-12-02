@@ -1,6 +1,6 @@
 # Securing serverless applications in Azure - Part 2/4 Configure Managed Identity
 
-This is the second in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
+This is the second in a four part series on securing serverless applications in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features, validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
 
 All of the commands in this blog post are expected to be run using Powershell.
 
@@ -10,7 +10,7 @@ This blog post expects that you have completed the setup and configuration in pa
 
 Something else you may want to consider is configuring a managed identity for you Function App. A managed identity allows you to grant access to other Azure resources without having to store credentials in code. Managed identities use certificate based authentication and their credentials are rotated every 45 days.
 
-We're now going to look at how we can enable a managed identity for our Function App and grant the function app access to query our Azure SQL database.
+We're now going to look at how to enable a managed identity for our Function App and grant the function app access to query our Azure SQL database.
 
 The first thing we're going to do is enable managed identity for our Function App. All we need to do is to add the following snippet to our `functionApp` resource in `main.bicep` directly after `kind: 'functionapp'`.
 
@@ -22,7 +22,7 @@ identity: {
 
 ```
 
-Next let's take a quick look at this snippet from the Function App code where we are setting the connection string and establishing the connection to the Azure SQL database.
+Next let's take a quick look at this snippet from the Function App [code](https://github.com/arinco-crew-community/four-tips-securing-serverless/blob/main/Arinco.Secure.Serverless/Functions.cs) where we are setting the connection string and establishing the connection to the Azure SQL database.
 
 ``` cs
 
@@ -41,7 +41,7 @@ if (useManagedIdentity)
 
 As you can see we expect a couple of environment variables to be set. The `UseManagedIdentity` variable indicates we expect the provided connection string to be a managed identity connection string. The `SQLAZURECONNSTR_AdventureWorks` variable is how connection string variables are retrieved in Azure Functions. We will need to add/update these variables in our Function App configuration.
 
-To do that we need to add the following snippet to the appSettings resource, underneath `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET`.
+To do that we need to add the following snippet to the appSettings resource in `main.bicep`, underneath `MICROSOFT_PROVIDER_AUTHENTICATION_SECRET`.
 
 ``` bicep
 
@@ -49,7 +49,7 @@ UseManagedIdentity: 'true'
 
 ```
 
-And set the `value` of our `AdventureWorks` connection string to the following.
+Next we need to set the `value` of our `AdventureWorks` connection string in the connectionstrings resource in `main.bicep` to the following.
 
 ``` bicep
 
@@ -59,7 +59,7 @@ And set the `value` of our `AdventureWorks` connection string to the following.
 
 As you can see from the connection string we no longer require the username and password to be supplied for our AzureSQL Database.
 
-We can now deploy our `main.bicep` file again to apply this configuration. We'll be prompted for for `authClientId` and `authClientSecret` values, these are the `appId` and `password` values respectively that were noted down earlier.
+We can now deploy our `main.bicep` file again to apply this configuration. We'll be prompted for for `authClientId` and `authClientSecret` values, these are the `appId` and `password` values respectively that were noted down.
 
 ``` powershell
 
