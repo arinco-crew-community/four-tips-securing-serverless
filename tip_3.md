@@ -1,6 +1,6 @@
 # Securing serverless applications in Azure - Part 3/4 Store application secrets in Key Vault
 
-This is the third in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features. Validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
+This is the third in a four part series of posts on securing serverless application in Azure using bicep. In this series we take a look at how you can secure serverless Function Apps in Azure. We start with a sample Azure Function App, deploy it to Azure and then progressively enable each of these security features, validating along the way that our changes have been successful and our app is secure. We configure (nearly) all of this using Azure Bicep and the AZ CLI. If you'd like to skip to code it's all available on GitHub [here](https://github.com/arincoau/four-tips-securing-serverless)
 
 All of the commands in this blog post are expected to be run using Powershell.
 
@@ -41,9 +41,9 @@ var keyVaultName = 'secure${uniqueAppName}'
 
 ```
 
-Now we need to grant our function app access to retrieve secrets from the Key Vault. To do this we will grant the Function App the `Key Vault Secret User`. This role has a GUID of `4633458b-17de-408a-b874-0445c86b69e6` which we can validate on in the Key Vault RBAC documentation [here](https://docs.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli#azure-built-in-roles-for-key-vault-data-plane-operations).
+Now we need to grant our function app access to retrieve secrets from the Key Vault. To do this we will grant the Function App the `Key Vault Secret User` role. This role has a GUID value of `4633458b-17de-408a-b874-0445c86b69e6` which we can seen in the Key Vault RBAC documentation [here](https://docs.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli#azure-built-in-roles-for-key-vault-data-plane-operations).
 
-We need to create two new variables at the top of our `main.bicep` file. The first variable `keyVaultSecretsUserRoleDefinitionGuid` is the GUID of the `Key Vault Secret User` and the second `keyVaultSecretsUserRoleDefinitionId` is a resource ID referencing the `Key Vault Secret User` role.
+We need to create two new variables at the top of our `main.bicep` file. The first variable `keyVaultSecretsUserRoleDefinitionGuid` is the GUID of the `Key Vault Secret User` role and the second `keyVaultSecretsUserRoleDefinitionId` is a resource ID referencing the `Key Vault Secret User` role.
 
 ``` bicep
 
